@@ -39,6 +39,11 @@ const detectService = (url) => {
   return { icon: <Globe className="text-blue-500" />, name: "Website" };
 };
 
+// Function to generate a random 6-character slug
+const generateSlug = () => {
+  return Math.random().toString(36).substring(2, 8);
+};
+
 export default function ChameleonLinkPage() {
   const [input, setInput] = useState("");
   const [links, setLinks] = useState([]);
@@ -47,20 +52,22 @@ export default function ChameleonLinkPage() {
 
   const handleAddLink = () => {
     if (input.trim()) {
+      const normalizedUrl = input.trim();
       if (editIndex !== null) {
         const updatedLinks = [...links];
-        updatedLinks[editIndex] = input.trim();
+        updatedLinks[editIndex].url = normalizedUrl;
         setLinks(updatedLinks);
         setEditIndex(null);
       } else {
-        setLinks([...links, input.trim()]);
+        const slug = generateSlug();
+        setLinks([...links, { url: normalizedUrl, slug }]);
       }
       setInput("");
     }
   };
 
   const handleEdit = (index) => {
-    setInput(links[index]);
+    setInput(links[index].url);
     setEditIndex(index);
   };
 
@@ -118,8 +125,13 @@ export default function ChameleonLinkPage() {
         </div>
 
         <div className="space-y-4 overflow-x-auto">
-          {links.map((url, index) => {
-            const { icon, name } = detectService(url);
+          {links.map((item, index) => {
+            const { icon, name } = detectService(item.url);
+            const fullLink = item.url.startsWith("http")
+              ? item.url
+              : `https://${item.url}`;
+            const shortLink = `${window.location.origin}/${item.slug}`;
+
             return (
               <div
                 key={index}
@@ -128,15 +140,26 @@ export default function ChameleonLinkPage() {
                 <div className="shrink-0">{icon}</div>
                 <div className="flex-1 min-w-0">
                   <a
-                    href={url.startsWith("http") ? url : `https://${url}`}
+                    href={fullLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block font-semibold text-gray-900 dark:text-white hover:underline break-words"
                   >
                     {name}
                   </a>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">
-                    {url}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                    {item.url}
+                  </p>
+                  <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                    Short link:{" "}
+                    <a
+                      href={fullLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      {shortLink}
+                    </a>
                   </p>
                 </div>
                 <div className="flex gap-2">
