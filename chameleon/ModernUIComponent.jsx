@@ -104,6 +104,9 @@ export default function ChameleonLinkPage() {
             placeholder="Paste your link here..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddLink();
+            }}
             className="flex-1 border border-gray-300 bg-white dark:bg-[#1C0F26] placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#EE2F5B]"
           />
           <button
